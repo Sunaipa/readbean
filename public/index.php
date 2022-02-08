@@ -4,6 +4,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RedBeanPHP\R as R;
 use slimApp\controllers\PersonController;
+use DI\Bridge\Slim\Bridge;
 
 require_once "../vendor/autoload.php";
 
@@ -14,8 +15,12 @@ $user = "root";
 $pass = "";
 R::setup($dsn, $user, $pass);
 
-//ROUTING
-$app = AppFactory::create();
+
+$builder = new DI\ContainerBuilder();
+$container = $builder->build();
+
+$app = Bridge::create($container);
+
 $app->get('/hello[/{name}]', function (Request $request, Response $response, array $args) {
 
     $name = $args["name"] ?? "inconnu";
