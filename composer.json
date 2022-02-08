@@ -1,0 +1,19 @@
+{
+    "name": "administrateur/readbean",
+    "autoload": {
+        "psr-4": {
+            "slimApp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "André Fernandes",
+            "email": "andref.pro@gmail.com"
+        }
+    ],
+    "require": {
+        "gabordemooij/redbean": "^5.7",
+        "slim/slim": "^4.9",
+        "slim/psr7": "^1.5"
+    }
+}
