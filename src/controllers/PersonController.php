@@ -9,7 +9,11 @@ class PersonController {
     public function showAll(Response $response){
         $listPerson = R::findAll("persons");
         $response->getBody()->write(json_encode($listPerson));
-    
+        return $response; 
+    }
+
+    public function showOne($id, Response $response){
+        $response->getBody()->write($id);
         return $response; 
     }
 

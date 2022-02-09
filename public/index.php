@@ -2,11 +2,22 @@
 use Slim\Factory\AppFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use RedBeanPHP\R as R;
 use slimApp\controllers\PersonController;
+use slimApp\controllers\HomeController;
+use slimApp\middleware\TestMiddleware;
+use slimApp\middleware\ApiKeyMiddleware;
 use DI\Bridge\Slim\Bridge;
+use Psr\Http\Message\RequestInterface;
+use Middlewares\Whoops;
+use Slim\Interfaces\RouteCollectorProxyInterface;
+use Slim\Middleware\ErrorMiddleware;
+
 
 require_once "../vendor/autoload.php";
+
+$dev = true;
 
 //REDBEAN
 //Initialisation de la connexion à une base MySQL ou MariaDB
@@ -19,17 +30,36 @@ R::setup($dsn, $user, $pass);
 $builder = new DI\ContainerBuilder();
 $container = $builder->build();
 
+$middleware = function(RequestInterface $request, RequestHandler $handler){
+    $response = $handler->handle($request);
+    $response->getBody()->write("Hello from middleware ");
+    return $response;
+};
+
+$middleware2 = function(RequestInterface $request, RequestHandler $handler){
+    $response = $handler->handle($request);
+    $response->getBody()->write("End of response ");
+    return $response;
+};
+
 $app = Bridge::create($container);
 
-$app->get('/hello[/{name}]', function (Request $request, Response $response, array $args) {
+//ajoute le middleWare à toute les routes
+//$app->add($middleware);
 
-    $name = $args["name"] ?? "inconnu";
-    $response->getBody()->write("Hello $name");
-    return $response;
-});
+if($dev) {
+    $app->add(Whoops::class);
+}
 
-$app->get('/person/insert[/{firstName}[/{lastName}]]', [PersonController::class, "insertOne"]);
 
-$app->get('/person/all',[PersonController::class, "showAll"]);
+//Ici le middleware est attacher à cette route seulement
+$app->get('/hello[/{name}]', [HomeController::class, "hello"])
+->add($middleware)->add($middleware2)->add(new TestMiddleware()); 
+
+$app->group("/person", function(RouteCollectorProxyInterface $group){
+    $group->get('/insert[/{firstName}[/{lastName}]]', [PersonController::class, "insertOne"]);
+    $group->get('/all',[PersonController::class, "showAll"]);
+    $group->get("/{id}", [PersonController::class, "showOne"]);
+})->add(new ApiKeyMiddleware(123));
 
 $app->run();

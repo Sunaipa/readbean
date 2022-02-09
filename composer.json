@@ -15,6 +15,8 @@
         "gabordemooij/redbean": "^5.7",
         "slim/slim": "^4.9",
         "slim/psr7": "^1.5",
-        "php-di/slim-bridge": "^3.2"
+        "php-di/slim-bridge": "^3.2",
+        "filp/whoops": "^2.14",
+        "middlewares/whoops": "^2.0"
     }
 }
