@@ -1,0 +1,11 @@
+{% extends  "base-layout.html.twig" %}
+
+{% block content %}
+    <ul>
+        {%  for item in persons %}
+            <li>{{ item }}</li>
+        {% else %}
+            <p>vide</p>
+        {% endfor %}
+    </ul>
+{% endblock %}

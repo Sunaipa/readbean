@@ -12,7 +12,9 @@ use DI\Bridge\Slim\Bridge;
 use Psr\Http\Message\RequestInterface;
 use Middlewares\Whoops;
 use Slim\Interfaces\RouteCollectorProxyInterface;
-use Slim\Middleware\ErrorMiddleware;
+use Slim\Views\Twig;
+use slimApp\controllers\PersonWebController;
+
 
 
 require_once "../vendor/autoload.php";
@@ -29,6 +31,10 @@ R::setup($dsn, $user, $pass);
 
 $builder = new DI\ContainerBuilder();
 $container = $builder->build();
+
+$container->set("twig", function(){
+    return Twig::create("../views");
+});
 
 $middleware = function(RequestInterface $request, RequestHandler $handler){
     $response = $handler->handle($request);
@@ -51,15 +57,20 @@ if($dev) {
     $app->add(Whoops::class);
 }
 
-
 //Ici le middleware est attacher à cette route seulement
 $app->get('/hello[/{name}]', [HomeController::class, "hello"])
 ->add($middleware)->add($middleware2)->add(new TestMiddleware()); 
 
-$app->group("/person", function(RouteCollectorProxyInterface $group){
+$app->group("/api/person", function(RouteCollectorProxyInterface $group){
     $group->get('/insert[/{firstName}[/{lastName}]]', [PersonController::class, "insertOne"]);
     $group->get('/all',[PersonController::class, "showAll"]);
     $group->get("/{id}", [PersonController::class, "showOne"]);
 })->add(new ApiKeyMiddleware(123));
 
+$app->group("/person", function(RouteCollectorProxyInterface $group){
+    $group->get('', [PersonWebController::class, "showAll"]);
+    $group->get("/form", [PersonWebController::class, "showForm"]);
+    $group->get('/{id}',[PersonWebController::class, "showOne"]);
+    $group->post('/form', [PersonWebController::class, "processForm"]);
+});
 $app->run();

@@ -18,7 +18,7 @@ class ApiKeyMiddleware  {
         $key = filter_input(INPUT_GET, "key");
         if($key != $this->key1) {
             throw new \Exception("Clef non valide");
-        }
+        } 
         $response = $handler->handle($request);
         return $response;
     }
