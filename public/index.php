@@ -69,8 +69,8 @@ $app->group("/api/person", function(RouteCollectorProxyInterface $group){
 
 $app->group("/person", function(RouteCollectorProxyInterface $group){
     $group->get('', [PersonWebController::class, "showAll"]);
-    $group->get("/form", [PersonWebController::class, "showForm"]);
-    $group->get('/{id}',[PersonWebController::class, "showOne"]);
+    $group->get('/form[/{id:[0-9]+}]', [PersonWebController::class, "showForm"]);
     $group->post('/form', [PersonWebController::class, "processForm"]);
+    $group->get('/{id:[0-9]+}',[PersonWebController::class, "showOne"]);
 });
 $app->run();

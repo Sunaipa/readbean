@@ -1,11 +1,23 @@
 {% extends  "base-layout.html.twig" %}
 
 {% block content %}
-    <ul>
-        {%  for item in persons %}
-            <li>{{ item }}</li>
-        {% else %}
-            <p>vide</p>
-        {% endfor %}
-    </ul>
+	<table class="table table-dark table-striped">
+		<thead>
+			<tr>
+				<th scope="col">#</th>
+				<th scope="col">Firstname</th>
+				<th scope="col">Lastname</th>
+                <th scope="col">Modify</th>
+			</tr>
+		</thead>
+		<tbody>
+			{%  for item in persons %}
+			<tr>
+                    <th scope="row">{{ item.id }}</th>
+					<td>{{ item.firstName }}</td>
+                    <td>{{ item.lastName }}</td>
+					<td><a href="/person/form/{{item.id}}">Modify</a></td>
+            </tr>
+			{% endfor %}
+	</table>
 {% endblock %}
