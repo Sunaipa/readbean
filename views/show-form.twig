@@ -1,10 +1,35 @@
 {% extends  "base-layout.html.twig" %}
 
+{% block js %} 
+    {{ parent() }}
+    <script>
+       $(document).ready(function() {
+    //Declaration de constante
+    const $phoneList = $('#phoneList');
+    const $addButton = $('#newPhoneButton');
+    const $phoneTemplate = $('#phoneTemplate');
+    
+    // On clone le template
+    const $clonedTemplate = $phoneTemplate.clone().removeAttr("id");
+    // Puis on le remove
+    $phoneTemplate.remove();
+    // Ajout de d'un event en click sur le bouton
+    $addButton.on("click", function(){
+        $phoneList.append($clonedTemplate.clone());
+    })
+    // Delegation d'event pour que les nouveaux bouton supp est l'eventde suppréssion
+    $phoneList.delegate(".delete", "click", function(){
+        $(this).parent().remove();
+    })
+})
+    </script>
+{% endblock %}
+    
 {% block content %}
     <form action="/person/form" method="post">
         <div class="form-group" hidden>
             <input type="text" class="form-control" name="contact[id]" value="{{person.id}}">
-            <input type="text" class="form-control" name="contact[id]" value="{{person.address.id}}">
+            <input type="text" class="form-control" name="address[id]" value="{{person.address.id}}">
         </div>
 
         <div class="form-group">
@@ -30,6 +55,29 @@
                 <input type="text" class="form-control" name="address[city]" value="{{person.address.city}}">
             </div>
         </fieldset>
+
+        <div class="d-flex justify-content-end mt-4">
+            <button type="button" class="btn btn-primary" id="newPhoneButton">Ajouter un téléphone</button>
+        </div>
+        <div id="phoneList" class="mb-3 mt-4">
+            {% for phone in person.ownPhones %}
+            <div class="mb-3 row">
+                <div class="col-10">
+                    <input type="tel" name="phones[numbers][]" class="form-control" value="{{phone}}">
+                </div >
+                <button type="button" class="btn btn-danger delete col-2">X</button>
+            </div>
+            {% endfor %}
+            <div id="phoneTemplate" class="mb-3  row">
+                <div class="col-10">
+                    <input type="tel" name="phones[numbers][]" class="form-control">
+                </div >
+                <button type="button" class="btn btn-danger delete col-2">X</button>
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">Add</button>
     </form>
+
+    
 {% endblock %}

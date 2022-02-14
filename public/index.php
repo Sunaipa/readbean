@@ -15,8 +15,6 @@ use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Views\Twig;
 use slimApp\controllers\PersonWebController;
 
-
-
 require_once "../vendor/autoload.php";
 
 $dev = true;

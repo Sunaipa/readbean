@@ -24,49 +24,70 @@ class PersonWebController  extends AbstractWebController {
 
     public function processForm(Response $response, ServerRequestInterface $request) {
 
+        //recup data du formulaire
         $data = $request->getParsedBody();
-
-        //if id present alors faire une modif sinon procéder en dessous
 
         $address = R::dispense("address");
         $address->import($data["address"]);
-        $id = R::store($address);
+        R::store($address);
 
+        //Check si on est dans une modification ou un ajout de personne
         if(empty($data["contact"]["id"])){
-            $person  = R::dispense("person");
+            $person  = R::dispense("persons");
         } else {
-            $person = R::load("person", $data["contact"]["id"]);
+            $person = R::load("persons", $data["contact"]["id"]);
+            $person->ownPhones = [];
         }
 
+        //S'il y a des telephone, creer l'entrer dans la table
+        if(isset($data["phones"])){
+            $phoneNumbers =$data["phones"]["numbers"];
+            for($i = 0; $i < count($phoneNumbers); $i++) {
+                if(!empty(trim($phoneNumbers[$i]))){
+                    $phone = R::dispense("phones");
+                    $phone->number = $phoneNumbers[$i];
+                    $person->ownPhones[] = $phone;
+                }
+            }   
+        }
 
-        $person = R::dispense("persons");
+        //$person = R::dispense("persons");
         $person->import($data["contact"]);
         $person->address = $address;//creation clef etrangere
-        $id = R::store($person);
+        R::store($person);
 
-        return $response->withStatus(302)->withHeader("location","/person/$id");
+        R::exec("DELETE FROM phones WHERE persons_id IS NULL");
 
-        // $newPerson = R::dispense("persons");    
-        // $newPerson->firstName = filter_input(INPUT_POST, "firstName");
-        // $newPerson->lastName = filter_input(INPUT_POST, "lastName");
-        // $id = R::store($newPerson);
-        // return $response->withStatus(302)->withHeader("location","/person/$id");
-        // // return $this->render($response,"show-person.twig",["id" => $id]);
+         return $response->withStatus(302)->withHeader("location","/person");
     }
 
     public function getOnePersonFromId($id) {
         if(! empty($id)){
-            $person = R::load("person", $id);
-        
+            $person = R::load("persons", $id);
             if(! empty($person->address_id)){
                 $address = R::load("address", $person->address_id);
                 $person->address = $address;
             } 
-        
+
+            /*
+            $phones = R::find("phones", $id);
+            if(! empty($phones)){
+                $person->ownPhones =  $phones;
+            }
+            */
+            
+            $phones = [];
+            foreach($person->ownPhones as $phone){
+                $phones[] = $phone->number;
+            }
+            $person->ownPhones = $phones;
+
+            //var_dump($person->ownPhones);
+            //exit;
+            
         } else {
             $person = null;
         }
-
         return $person;
     }
 
