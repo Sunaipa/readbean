@@ -2,7 +2,7 @@
 namespace slimApp\controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
-use RedBeanPHP\R as R;
+use RedBeanPHP\R as R;  
 
 class PersonController {
 
